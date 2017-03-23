@@ -1,17 +1,17 @@
 library(qvalue)
-packageName="eagle"
+packageName="eagle_one"
 
 
 # alt: list (over exonic SNPs) of alternative read counts
 # n: list (over exonics SNPs) of total read counts
 # x: list of design matrices for each exonic SNP
 # settings: list of settings. Create using default.settings() and then customize. 
-eagle.vem <- function(alt,n,x,settings)
+eagle_one.vem <- function(alt,n,x,settings)
 {
     .Call("runvb", alt, n, x, settings, PACKAGE = packageName )
 }
 
-eagle.settings <- function(){
+eagle_one.settings <- function(){
   list(debug=F, # output debugging information? Also performs additional checks. 
        max.iterations=1000, # maximum iterations of EM to run
        convergence.tolerance=0.1, # consider EM to have converged if the change in the lower bound is less than this
@@ -50,8 +50,8 @@ eagle.settings <- function(){
 # return.aux.variables: whether to return the auxiliary variables g (only used for debugging)
 # storeAllCoeffs: whether to store coefficients throughout the EM algorithm (for debugging)
 # repRep: for local.regression the inital value of 1/v
-eagle <- function(alt,n,xFull,xNull,max.its=1000,tol=10.0,debug=F,learn.rev=T,rev=1.0,traceEvery=1,rev.model="global",null.first=T,coeff.reg=0.0,return.aux.variables=F,storeAllCoeffs=F,repRep=1){
-  s=eagle.settings()
+eagle_one <- function(alt,n,xFull,xNull,max.its=1000,tol=10.0,debug=F,learn.rev=T,rev=1.0,traceEvery=1,rev.model="global",null.first=T,coeff.reg=0.0,return.aux.variables=F,storeAllCoeffs=F,repRep=1){
+  s=eagle_one.settings()
   s$return.aux.variables=return.aux.variables
   s$storeAllCoeffs=storeAllCoeffs
   if (rev.model=="global"){
@@ -77,7 +77,7 @@ eagle <- function(alt,n,xFull,xNull,max.its=1000,tol=10.0,debug=F,learn.rev=T,re
   s$learn.rev=learn.rev
   s$random.effect.variance=rev
 
-  eagle.helper(alt,n,xFull,xNull,s)
+  eagle_one.helper(alt,n,xFull,xNull,s)
 }
 
 # alt: list (over exonic SNPs) of alternative read counts
@@ -85,7 +85,7 @@ eagle <- function(alt,n,xFull,xNull,max.its=1000,tol=10.0,debug=F,learn.rev=T,re
 # xFull: list of design matrices for the alternative hypothesis (e.g. including environment)
 # xNull: list of design matrices for the null hypothesis
 # s: list of settings. Create using default.settings() and then customize. 
-eagle.helper = function(alt,n,xFull,xNull,s){
+eagle_one.helper = function(alt,n,xFull,xNull,s){
 
     if (is.null(s$normalised.depth))
         s$normalised.depth=scale(log10(unlist(lapply(n,mean))))
@@ -126,7 +126,7 @@ eagle.helper = function(alt,n,xFull,xNull,s){
   xNullList=xToListList(xNull)
     
   # run first model -------------
-  timeFirst = system.time( res.first <- eagle.vem(alt,n,if (s$null.first) xNullList else xFullList,s) )[1]
+  timeFirst = system.time( res.first <- eagle_one.vem(alt,n,if (s$null.first) xNullList else xFullList,s) )[1]
 
   # hold global dispersion parameters fixed
   s$learn.
@@ -142,11 +142,11 @@ eagle.helper = function(alt,n,xFull,xNull,s){
   res.firstOld=NULL
   if (s$rerunFirst){
       res.firstOld=res.first
-      res.first = eagle.vem(alt,n,if (s$null.first) xNullList else xFullList,s)
+      res.first = eagle_one.vem(alt,n,if (s$null.first) xNullList else xFullList,s)
   }
   
   # run second model --------------
-  timeSecond = system.time( res.second <- eagle.vem(alt,n,if (s$null.first) xFullList else xNullList,s) )[1]
+  timeSecond = system.time( res.second <- eagle_one.vem(alt,n,if (s$null.first) xFullList else xNullList,s) )[1]
   if (s$null.first){
       res.full=res.second
       res.null=res.first
