@@ -1,3 +1,4 @@
+library(qvalue)
 packageName="eagle"
 
 
@@ -128,7 +129,8 @@ eagle.helper = function(alt,n,xFull,xNull,s){
   timeFirst = system.time( res.first <- eagle.vem(alt,n,if (s$null.first) xNullList else xFullList,s) )[1]
 
   # hold global dispersion parameters fixed
-  s$learn.rev=F
+  s$learn.
+      =F
   s$random.effect.variance=res.first$random.effect.var
   s$rep.slope=res.first$rep.slope
   s$rep.rep=res.first$rep.rep
@@ -160,7 +162,10 @@ eagle.helper = function(alt,n,xFull,xNull,s){
   p=pchisq(like.ratios.statistics,df=df,lower.tail=F)
   # calculate q-values
   q=p.adjust(p,method="fdr")
-  list(p.values=p,q.values=q,res.full=res.full,res.null=res.null,settings=s,timeFirst=timeFirst,timeSecond=timeSecond,res.firstOld=res.firstOld)
+  # qvalue package
+  qval=qvalue(p)$qvalues
+      
+  list(p.values=p,q.values=q,qvalues_package=qval,res.full=res.full,res.null=res.null,settings=s,timeFirst=timeFirst,timeSecond=timeSecond,res.firstOld=res.firstOld)
 }
 
 
